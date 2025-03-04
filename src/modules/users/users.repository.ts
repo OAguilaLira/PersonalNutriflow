@@ -6,60 +6,65 @@ import { CreateLocalUserDto } from './dto/create-local-user.dto';
 import { CreateAuth0UserDto } from './dto/create-auth0-user.dto';
 import { AuthProvider } from './enums/auth-provider.enum';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserProfilesService } from '../user-profiles/user-profiles.service';
 
 @Injectable()
 export class UsersRepository {
-   constructor(@InjectRepository(User) private repository: Repository<User>) {
-   }
+  constructor(
+    @InjectRepository(User) private repository: Repository<User>,
+    private readonly usersProfileServise: UserProfilesService,
+  ) {}
 
-   async createLocalUser(userData: Omit<CreateLocalUserDto, 'passwordConfirmation'>): Promise<User> {
-      return this.repository.save(userData);
-   }
+  async createLocalUser(
+    userData: Omit<CreateLocalUserDto, 'passwordConfirmation'>,
+  ): Promise<User> {
+    const newUser: User = await this.repository.save(userData);
+    await this.usersProfileServise.create(newUser.id);
+    return newUser;
+  }
 
+  async createAuth0User(userData: CreateAuth0UserDto): Promise<User> {
+    const newUser: User = await this.repository.save({
+      ...userData,
+      provider: AuthProvider.AUTH0,
+    });
+    await this.usersProfileServise.create(newUser.id);
+    return newUser;
+  }
 
-   async createAuth0User(userData: CreateAuth0UserDto): Promise<User> {
-      return this.repository.save({ ...userData, provider: AuthProvider.AUTH0 });
-   }
+  async findAll(): Promise<User[]> {
+    return this.repository.find();
+  }
 
+  async findById(id: string): Promise<User> {
+    return this.repository.findOne({
+      where: { id },
+      relations: { userProfile: true },
+    });
+  }
 
-   async findAll(): Promise<User[]> {
-      return this.repository.find();
-   }
+  async findByAuthId(auth0Id: string): Promise<User> {
+    return this.repository.findOneBy({ auth0Id });
+  }
 
+  async findByEmail(email: string): Promise<User> {
+    return this.repository.findOneBy({ email });
+  }
 
-   async findById(id: string): Promise<User> {
-      return this.repository.findOne({
-         where: { id },
-         relations: { userProfile: true },
-      });
-   }
+  async update(id: string, updateData: UpdateUserDto) {
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestException('No update data provided');
+    }
 
+    await this.repository.update(id, updateData);
+    const updatedUser = await this.repository.findOneBy({ id });
 
-   async findByAuthId(auth0Id: string): Promise<User> {
-      return this.repository.findOneBy({ auth0Id });
-   }
+    console.log(`User with ID ${id} has been updated`);
+    return updatedUser;
+  }
 
-
-   async findByEmail(email: string): Promise<User> {
-      return this.repository.findOneBy({ email });
-   }
-
-
-   async update(id: string, updateData: UpdateUserDto) {
-      if (Object.keys(updateData).length === 0) {
-         throw new BadRequestException('No update data provided');
-      }
-
-      await this.repository.update(id, updateData);
-      const updatedUser = await this.repository.findOneBy({ id });
-
-      console.log(`User with ID ${id} has been updated`);
-      return updatedUser;
-   }
-
-
-   async delete(id: string): Promise<void> {
-      await this.repository.delete(id);
-      console.log(`User with ID ${id} has been deleted`);
-   }
+  async delete(id: string): Promise<void> {
+    await this.repository.delete(id);
+    console.log(`User with ID ${id} has been deleted`);
+  }
 }

@@ -17,7 +17,10 @@ export class UserProfilesController {
 
   @Post()
   create(@Body() createUserProfileDto: CreateUserProfileDto) {
-    return this.userProfilesService.create(createUserProfileDto);
+    return this.userProfilesService.create(
+      createUserProfileDto.user,
+      createUserProfileDto,
+    );
   }
 
   // @Get()

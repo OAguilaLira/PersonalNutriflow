@@ -10,6 +10,7 @@ import { UserProfile } from './entities/user-profile.entity';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
+import { Gender } from './enums/gender.enum';
 
 @Injectable()
 export class UserProfilesService {
@@ -18,8 +19,20 @@ export class UserProfilesService {
     private readonly usersProfileRepository: UsersProfileRepository,
   ) {}
 
-  async create(createUserProfileDto: CreateUserProfileDto) {
-    const userId: string = createUserProfileDto.user;
+  async create(userId: string, createUserProfileDto?: CreateUserProfileDto) {
+    if (!createUserProfileDto) {
+      createUserProfileDto = {
+        user: 'UsuariPrueba',
+
+        birthdate: new Date(),
+
+        gender: Gender.MALE,
+
+        weight: 70.2,
+
+        height: 1.7,
+      };
+    }
     const userfound: User | null = await this.usersService.findById(userId);
     if (!userfound) {
       throw new NotFoundException('Usuario no encontrado');
