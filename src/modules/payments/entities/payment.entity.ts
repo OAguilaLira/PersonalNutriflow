@@ -12,6 +12,9 @@ export class Payment {
   @Column({ type: 'boolean' })
   status: boolean;
 
+  @Column({ type: 'date', nullable: true })
+  canceled_at: Date;
+
   @ManyToOne(() => User, (user) => user.payments, { onDelete: 'CASCADE' })
   user: User;
 }

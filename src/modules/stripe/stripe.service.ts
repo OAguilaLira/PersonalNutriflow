@@ -28,8 +28,12 @@ export class StripeService {
         expires_at: expiresAt,
       });
     } catch (error) {
-      console.log('Failed to create subscription', error.stack);
+      console.log('Error al crear la oden de pago', error.stack);
       throw error;
     }
+  }
+
+  async cancelSubscriptionNow(subscriptionId: string) {
+    const subscription = await this.stripe.subscriptions.cancel(subscriptionId);
   }
 }

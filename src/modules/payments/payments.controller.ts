@@ -25,4 +25,11 @@ export class PaymentsController {
     const userId: string = req.user.sub;
     return this.paymentsService.createCheckoutSession(userId);
   }
+
+  @UseGuards(AuthGuard)
+  @Delete()
+  async cancelSubscriptionNow(@Req() req: { user: { sub: string } }) {
+    const userId: string = req.user.sub;
+    return this.paymentsService.cancelSubscriptionNow(userId);
+  }
 }
