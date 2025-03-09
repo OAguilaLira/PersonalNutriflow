@@ -30,8 +30,27 @@ export class PaymentRepository {
     return await this.PaymentRepository.findOne({
       where: {
         user: { id: userId },
-        status: true,
+        isActive: true,
       },
     });
+  }
+
+  async finAllByUser(userId: string, limit: number, page: number) {
+    const [results, total] = await this.PaymentRepository.findAndCount({
+      where: {
+        user: { id: userId },
+      },
+      order: {
+        created_at: 'DESC',
+        id: 'ASC',
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      results,
+      total,
+    };
   }
 }

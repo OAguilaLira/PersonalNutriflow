@@ -30,6 +30,12 @@ export class StripeController {
         await this.paymentService.subscriptiondowngrade(event.data.object);
         break;
       }
+      case 'invoice.paid': {
+        await this.paymentService.handleSubscriptionInvoicePaid(
+          event.data.object,
+        );
+        break;
+      }
       default: {
         console.log(`Evento del tipo ${event.type}, no manejado`);
       }

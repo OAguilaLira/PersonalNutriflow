@@ -34,6 +34,16 @@ export class StripeService {
   }
 
   async cancelSubscriptionNow(subscriptionId: string) {
-    const subscription = await this.stripe.subscriptions.cancel(subscriptionId);
+    try {
+      await this.stripe.subscriptions.cancel(subscriptionId);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getSuscriptionData(subscriptionId: string) {
+    try {
+      return this.stripe.subscriptions.retrieve(subscriptionId);
+    } catch (error) {}
   }
 }

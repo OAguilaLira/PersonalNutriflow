@@ -1,19 +1,15 @@
 import {
   Controller,
-  Get,
   Post,
-  Body,
-  Patch,
-  Param,
   Delete,
-  Res,
   UseGuards,
   Req,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { GetPaymentDto } from './dto/get-payment.dto';
 
 @Controller('payments')
 export class PaymentsController {
@@ -24,6 +20,18 @@ export class PaymentsController {
   async createCheckoutSession(@Req() req: { user: { sub: string } }) {
     const userId: string = req.user.sub;
     return this.paymentsService.createCheckoutSession(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get()
+  async getAllPaymentsByUser(
+    @Req() req: { user: { sub: string } },
+    @Query() getPaymentData: GetPaymentDto,
+  ) {
+    const userId: string = req.user.sub;
+    const limit: number = getPaymentData.limit;
+    const page: number = getPaymentData.page;
+    return this.paymentsService.getAllPaymentsByUser(userId, limit, page);
   }
 
   @UseGuards(AuthGuard)
