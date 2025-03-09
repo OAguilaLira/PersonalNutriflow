@@ -87,7 +87,7 @@ export class PaymentsService {
       const user: User =
         await this.userService.findByStripeId(stripeCustomerId);
       const createPaymentData: CreatePaymentDto = {
-        status: true,
+        isActive: true,
         stripeSubscriptionId: paymentData.id,
         user,
         currentPeriodStart: new Date(paymentData.current_period_start * 1000),
@@ -97,7 +97,7 @@ export class PaymentsService {
       await this.userService.updateSubscriptionType(user.id);
     } else if (payment) {
       const newStatus: boolean = paymentData.status !== 'active' ? false : true;
-      await this.paymentRepository.update(payment.id, { status: newStatus });
+      await this.paymentRepository.update(payment.id, { isActive: newStatus });
       if (!newStatus) {
         const stripeCustomerId: string =
           typeof paymentData.customer === 'string'
@@ -111,11 +111,13 @@ export class PaymentsService {
   }
 
   async subscriptiondowngrade(paymentData: Stripe.Subscription) {
+    if (!paymentData.id) return;
     const payment: Payment = await this.paymentRepository.findOneByStripeId(
       paymentData.id,
     );
+    if (!payment) return;
     await this.paymentRepository.update(payment.id, {
-      status: false,
+      isActive: false,
       canceled_at: new Date(),
     });
     const consumerId: string = paymentData.customer.toString();

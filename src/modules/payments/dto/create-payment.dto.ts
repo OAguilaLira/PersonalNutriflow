@@ -5,7 +5,7 @@ import { User } from 'src/modules/users/entities/user.entity';
 export class CreatePaymentDto {
   stripeSubscriptionId: string;
 
-  status: boolean;
+  isActive: boolean;
 
   user: User;
 
