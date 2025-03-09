@@ -18,9 +18,9 @@ export class PaymentsService {
     const user: User = await this.userService.findById(userId);
     const activeSuscription: Payment =
       await this.paymentRepository.findActiveByUser(userId);
-    if (!activeSuscription) {
+    if (activeSuscription) {
       new BadRequestException(
-        `El usuario ${userId} tiene una suscripción activa`,
+        `El usuario ${userId} ya tiene una suscripción activa`,
       );
     }
     let stripeCustomerId: string = user.stripeCustomerId;
