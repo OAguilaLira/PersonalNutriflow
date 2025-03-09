@@ -16,6 +16,8 @@ export class StripeWebhookGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const signature = request.headers['stripe-signature'];
 
+    console.log('### Llego al guard');
+
     try {
       const event = this.stripe.webhooks.constructEvent(
         (request as any).rawBody,

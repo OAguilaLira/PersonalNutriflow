@@ -21,7 +21,7 @@ export class StripeController {
   @Post('webhook')
   async handleWebhook(@Req() req: RawBodyRequest<Request>) {
     const event = req['stripeEvent'] as Stripe.Event;
-
+    console.log('### Llego al controlador');
     switch (event.type) {
       case 'customer.subscription.created': {
         this.paymentService.registerPayment(event.data.object);

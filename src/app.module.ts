@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { StripeModule } from './modules/stripe/stripe.module';
+import { StripeWebhookMiddleware } from './modules/stripe/middleware/stripe.middleware';
 
 @Module({
   imports: [
@@ -38,4 +39,8 @@ import { StripeModule } from './modules/stripe/stripe.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(StripeWebhookMiddleware).forRoutes('stripe/webhook');
+  }
+}
